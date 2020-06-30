@@ -1,0 +1,31 @@
+Multiple poll-answerers
+1 admin
+
+Login Page :
+    	Room #
+	Nickname
+	Password
+
+Polls :
+	Bar Graph
+	Word Size
+	Pie Chart
+	etc.
+
+Release one :
+	Login page
+	4 - choices
+	Bar graph
+	
+
+Release two :
+	Open answer
+	Word size
+	Pie chart
+	Prepare saved polls
+	Export poll results to file.
+
+Languages :
+	Python - PyCharm
+	Google App Engine
+	Flask
