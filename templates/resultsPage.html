@@ -13,10 +13,13 @@
         function drawChart() {
             var data = google.visualization.arrayToDataTable([
                 ['Domain', 'Answers given'],
-                ["A", {{ data["A"]}}],
-                ["B", {{ data["B"]}}],
-                ["C", {{ data["C"]}}],
-                ["D", {{ data["D"]}}],
+                {% for key, value in data.items() %}
+                    {% if value is string %}
+                        ['{{ key }}', '{{ value }}'],
+                    {% else %}
+                        ['{{ key }}', {{ value }}],
+                    {% endif %}
+                {% endfor %}
             ]);
 
             var options = {
