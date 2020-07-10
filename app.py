@@ -27,19 +27,18 @@ def question():
         ans = session['recentAns']
         mydict = addAnswers(ans)
 
-#for some reason, the dictionary gets passed, but the arguments aren't used properly by the pie chart script.
-#they are properly used when the dictionary is freshly created within the same method before being sent to the .html
-#As far as I can tell, this only happens with the dictionary
-
         return render_template("resultsPage.html", data=mydict)
 
     else:
         return render_template("submitAnswers.html")
 
-
+"""
+Creates a dictionary, data, in session if it does not already exist. 
+Checks for the key in the dictionary that matches the param ans and increments its value. 
+"""
 def addAnswers(ans):
     if "data" not in session:
-        session["data"] = {'A': 1, 'B': 1, 'C': 1, 'D': 1}
+        session["data"] = {'A': 0, 'B': 0, 'C': 0, 'D': 0}
 
     mydict = session["data"]
 
@@ -51,11 +50,7 @@ def addAnswers(ans):
 
 @app.route("/results/")
 def results():
-    # ans = session['user']
-    # data = session['data']
-    # return render_template("resultsPage.html", answer=ans, data=data)
     if "data" in session:
-        ans = session['recentAns']
         data = session["data"]
         return render_template("resultsPage.html", data=data)
     else:
