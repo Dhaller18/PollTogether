@@ -12,17 +12,15 @@
 
         function drawChart() {
             var data = google.visualization.arrayToDataTable([
-                {% for key, value in data.items() %}
-                    {% if value is string %}
-                        ['{{ key }}', '{{ value }}'],
-                    {% else %}
-                        ['{{ key }}', {{ value }}],
-                    {% endif %}
-                {% endfor %}
+                ['Domain', 'Answers given'],
+                ["A", {{ data["A"]}}],
+                ["B", {{ data["B"]}}],
+                ["C", {{ data["C"]}}],
+                ["D", {{ data["D"]}}],
             ]);
 
             var options = {
-                title: 'My Daily Activities',
+                title: 'Sample Answsers',
                 is3D: true,
             };
 
