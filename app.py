@@ -1,9 +1,12 @@
 from flask import Flask, redirect, url_for, render_template, request, session
+from flask_socketio import SocketIO, disconnect, emit, join_room
+from poll import PollRoom, Poll
 from datetime import timedelta
 
 app = Flask(__name__)
 app.secret_key = "hello"
-
+socketio = SocketIO(app)
+ROOMS = {}
 
 @app.route('/')
 def home():
@@ -11,6 +14,10 @@ def home():
     user = session["user"]
     # session["data"] = {'A': 1, 'B': 1, 'C': 1, 'D': 1}
     return render_template("home.html", user=user)
+
+@app.route('/joinRoom/', methods=["POST", "GET"])
+def join_existing():
+    return render_template("joinRoom.html")
 
 
 @app.route('/user')
@@ -27,7 +34,7 @@ def question():
         ans = session['recentAns']
         mydict = addAnswers(ans)
 
-        return render_template("resultsPage.html", data=mydict)
+        return redirect(url_for("results"))
 
     else:
         return render_template("submitAnswers.html")
@@ -56,6 +63,30 @@ def results():
     else:
         redirect(url_for("question"))
 
+@socketio.on('create')
+def on_create(data):
+    if data['room_id'] in ROOMS:
+        emit('error', {'error': 'Room With That ID Already Exists.'})
+    else:
+        pr = PollRoom(data['owner'], data['room_id'])
+        id = pr.roomID
+        ROOMS[id] = pr
+        join_room(id)
+        emit('join_room', {'room': id})
+        render_template("pollRoom.html", room=pr)
+
+@socketio.on('join')
+def on_join(data):
+    room = data['id']
+    if room in ROOMS:
+        join_room(room)
+        render_template("pollRoom.html", room=ROOMS[room])
+    else:
+        emit('error', {'error': 'Room does not exist.'})
+        redirect(url_for("home"))
+
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    #app.run(debug=True)
+    socketio.run(app, debug=True)
+

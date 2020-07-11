@@ -4,4 +4,14 @@
 {% block content %}
     <h1>Temporary homepage</h1>
     <p>Welcome {{ user }}!</p>
+
+    <form method="POST">
+        <p>Would you like to:</p>
+
+        <p> <button onlick="createRoom()">Create New Room</p>
+        <p> <input type="submit" value="Join Existing Room" formaction="/joinRoom/"> </p>
+    </form>
 {% endblock %}
+
+
+

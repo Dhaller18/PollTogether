@@ -1,10 +1,9 @@
 class PollRoom:
 
     def __init__(self, owner, room_id):
-        self.polls = None
+        self.polls = {}
         self.owner = owner
         self.roomID = room_id
-
 
 class Poll:
     def __init__(self, room, question, response_type, display_type, active=False):
