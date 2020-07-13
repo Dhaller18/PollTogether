@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Poll Room{% endblock %}
+
+{% block content %}
+    <script src="//code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+
+<body id="pollHolder">
+    <script type="text/javascript">
+        for (poll in {{ room.polls }}) {
+            if (poll.active) {
+                document.getElementById("pollHolder").appendChild(makeForm(poll));
+            }
+        }
+
+        function makeForm(poll) {
+            // Create a form
+            var form = document.createElement("form");
+            form.setAttribute("method", "post");
+
+            // Create question
+            var question = document.createElement("p")
+            question.innerText = poll.question;
+            form.appendChild(question);
+            if (poll.response_type == "Multiple choice") {
+                for (response in poll.responses) {
+                    var responseLabel = document.createElement("label");
+                    responseLabel.innerText = response.text;
+                    var responseOp = document.createElement("input");
+                    responseOp.id = response.button_val;
+                    responseOp.value = response.button_val;
+                    responseLabel.setAttribute("for", responseOp.id);
+                    responseOp.type = "submit";
+                    form.appendChild(responseLabel);
+                    form.appendChild(responseOp);
+                }
+            }
+            return form;
+        }
+    </script>
+</body>
+{% endblock %}
