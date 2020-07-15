@@ -1,11 +1,11 @@
 import uuid
 
 from flask import Flask, redirect, url_for, render_template, request, session
-from flask_socketio import SocketIO, disconnect, emit, join_room
+from flask_socketio import SocketIO, emit, join_room
 from flask_sqlalchemy import SQLAlchemy
-from datetime import timedelta
 
 app = Flask(__name__)
+# noinspection SpellCheckingInspection
 app.secret_key = "aklsdfjlksdahfkVdHDKHlkdsjfSDkfj323KDSFhk"
 socketio = SocketIO(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pollTogether.db'
@@ -56,14 +56,15 @@ def join_existing():
 def question():
     if request.method == "POST":
         session['recentAns'] = request.form['ans']
-
-        ans = session['recentAns']
-        add_answers(ans)
-
-        return redirect(url_for("results"))
+        return question_answered(session['recentAns'])
 
     else:
         return render_template("submitAnswers.html")
+
+
+def question_answered(ans):
+    add_answers(ans)
+    return redirect(url_for("results"))
 
 
 # Creates a dictionary, data, in session if it does not already exist.
@@ -115,7 +116,6 @@ def on_new_poll(data):
     socketio.emit('newPoll', poll_data)
 
 
-
 @socketio.on('create')
 def on_create(data):
     if 'uid' not in session:
@@ -133,4 +133,4 @@ def on_join(data):
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app)
