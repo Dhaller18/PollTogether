@@ -45,7 +45,7 @@ def home():
 @app.route('/joinRoom/', methods=["POST", "GET"])
 def join_existing():
     if request.method == "POST":
-        room = request.form['roomName']
+        room = request.form.get('roomName')
         if db.session.query(db.exists().where(Room.name == room)).scalar():
             return redirect(url_for("poll_room", room_id=room))
 
