@@ -64,7 +64,7 @@ class TestQuestions(unittest.TestCase):
             self.assertEqual(expectedDict, mydict, "Answer not counted")
 
     # assumes the current question has answer 'A'
-    def test_questionPage(self):
+    def test_questionPageWithData(self):
         with app.test_request_context('/question/'):
             response = self.app.post(
                 '/question/',
@@ -72,6 +72,11 @@ class TestQuestions(unittest.TestCase):
                 follow_redirects=True
             )
         self.assertTrue(b'Results to question' in response.data)
+
+    def test_resultsNoData(self):
+        response = self.app.get('/results/', follow_redirects=True)
+        self.assertTrue(b'What option do you think is correct?' in response.data, "Was not redirected to questions page")
+
 
 
 class TestRooms(unittest.TestCase):
@@ -84,14 +89,14 @@ class TestRooms(unittest.TestCase):
     def tearDown(self):
         pass
 
-    #expects there to be a room with the ID XEOW
+    # expects there to be a room with the ID XEOW
     def test_roomJoined(self):
         with app.test_request_context('/joinRoom'):
             response = self.app.post(
                 '/joinRoom/',
                 data={'roomName': 'XEOW'},
                 follow_redirects=True
-        )
+            )
         self.assertTrue(b'Welcome to Room: XEOW' in response.data)
 
 

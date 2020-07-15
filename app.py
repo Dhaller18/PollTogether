@@ -56,15 +56,13 @@ def join_existing():
 def question():
     if request.method == "POST":
         session['recentAns'] = request.form['ans']
-        return question_answered(session['recentAns'])
+        add_answers(request.form['ans'])
+        return redirect(url_for("results"))
 
     else:
         return render_template("submitAnswers.html")
 
 
-def question_answered(ans):
-    add_answers(ans)
-    return redirect(url_for("results"))
 
 
 # Creates a dictionary, data, in session if it does not already exist.
@@ -87,7 +85,7 @@ def results():
         data = session["data"]
         return render_template("resultsPage.html", data=data)
     else:
-        redirect(url_for("question"))
+        return redirect(url_for("question"))
 
 
 @app.route("/room/<room_id>", methods=["POST", "GET"])
