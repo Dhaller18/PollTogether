@@ -1,8 +1,8 @@
 import os
+import flask
 import unittest
-
+import app as site
 from flask import url_for
-
 from app import app
 
 
@@ -13,7 +13,7 @@ class RoutingTests(unittest.TestCase):
         app.config["DEBUG"] = True
         self.app = app.test_client()
 
-    def tear_down(self):
+    def tearDown(self):
         pass
 
     def test_homePage(self):
@@ -32,10 +32,22 @@ class TestQuestions(unittest.TestCase):
         app.config["DEBUG"] = True
         self.app = app.test_client()
 
-    def tear_down(self):
+    def tearDown(self):
         pass
 
-    # assumes the current question is
+    def test_add_answers_NoData(self):
+        with app.test_request_context('/question/'):
+            mydict = site.add_answers('A')
+            expectedDict = {'A': 0, 'B': 0, 'C': 0, 'D': 0}
+            self.assertIsNotNone(mydict, "Default dictionary was not created")
+
+    def test_add_answers_NoData_AnswerGiven(self):
+        with app.test_request_context('/question/'):
+            mydict = site.add_answers('A')
+            expectedDict = {'A': 1, 'B': 0, 'C': 0, 'D': 0}
+            self.assertEqual(expectedDict, mydict, "Answer not counted")
+
+    # assumes the current question has answer 'A'
     def test_questionPage(self):
         response = self.app.get('/question/', follow_redirects=True)
         ans = {'A': 'A'}

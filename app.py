@@ -22,12 +22,6 @@ def join_existing():
     return render_template("joinRoom.html")
 
 
-@app.route('/user')
-def user():
-    poll_user = session["user"]
-    return f"hello {poll_user}"
-
-
 @app.route("/question/", methods=["POST", "GET"])
 def question():
     if request.method == "POST":
@@ -42,12 +36,8 @@ def question():
         return render_template("submitAnswers.html")
 
 
-"""
-Creates a dictionary, data, in session if it does not already exist. 
-Checks for the key in the dictionary that matches the param ans and increments its value. 
-"""
-
-
+# Creates a dictionary, data, in session if it does not already exist.
+# Checks for the key in the dictionary that matches the param ans and increments its value.
 def add_answers(ans):
     if "data" not in session:
         session["data"] = {'A': 0, 'B': 0, 'C': 0, 'D': 0}
@@ -74,6 +64,7 @@ def poll_room(room_id):
     print(room_id)
     return render_template("pollRoom.html", room=ROOMS[room_id])
 
+
 @socketio.on('create')
 def on_create(data):
     if data['room_id'] in ROOMS:
@@ -97,5 +88,4 @@ def on_join(data):
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
     socketio.run(app, debug=True)
