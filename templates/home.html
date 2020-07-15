@@ -8,7 +8,7 @@
     <form method="POST">
         <p>Would you like to:</p>
 
-        <p> <button>Create New Room</button></p>
+        <p> <button onclick="createRoom()" >Create New Room</button></p>
         <p> <input type="submit" value="Join Existing Room" formaction="/joinRoom/"> </p>
     </form>
     <script src="//code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
@@ -22,22 +22,21 @@
         socket.on('redirect', function(destination) {
             window.location.href = destination['url'];
         });
-        $("button").on("click", function() {
+        function createRoom(){
             console.log('Creating room...');
             let rID = randomCode();
-            let rmOwner = socket.id;
-            socket.emit('create', {'room_id': rID, 'owner': rmOwner})
-        });
+            socket.emit('create', {'room_id': rID})
+        }
 
         function randomCode() {
             let result = '';
             let inUseKeys = [];
-            {% for key in openRooms.keys() %}
-                inUseKeys.push(key);
+            {% for room in openRooms %}
+                inUseKeys.push('{{ room.name }}');
             {% endfor %}
             let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             for (let i = 0; i < 4; i++) {
-                result += characters.charAt(Math.floor(Math.random() * 4));
+                result += characters.charAt(Math.floor(Math.random()*characters.length));
             }
             if (result in inUseKeys) {
                 return randomCode();
