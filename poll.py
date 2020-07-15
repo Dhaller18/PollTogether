@@ -1,18 +1,19 @@
 class PollRoom:
 
     def __init__(self, owner, room_id):
-        self.polls = None
+        self.polls = {}
         self.owner = owner
         self.roomID = room_id
 
-
 class Poll:
-    def __init__(self, room, question, response_type, display_type, active=False):
+    def __init__(self, room, question, response_type, choices, active=False):
         self.room = room
         self.question = question
-        self.response_type = response_type
-        self.display_type = display_type
+        self.response_type = "Multiple choice"
+        self.display_type = "pie chart"
+        self.responses = choices
         self.active = active
+
 
 
 class PollParticipant:

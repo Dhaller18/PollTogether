@@ -4,4 +4,48 @@
 {% block content %}
     <h1>Temporary homepage</h1>
     <p>Welcome {{ user }}!</p>
+
+    <form method="POST">
+        <p>Would you like to:</p>
+
+        <p> <button>Create New Room</button></p>
+        <p> <input type="submit" value="Join Existing Room" formaction="/joinRoom/"> </p>
+    </form>
+    <script src="//code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        socket.on('connect', function () {
+            console.log('Websocket connected!');
+        })
+        socket.on('redirect', function(destination) {
+            window.location.href = destination['url'];
+        });
+        $("button").on("click", function() {
+            console.log('Creating room...');
+            let rID = randomCode();
+            let rmOwner = socket.id;
+            socket.emit('create', {'room_id': rID, 'owner': rmOwner})
+        });
+
+        function randomCode() {
+            let result = '';
+            let inUseKeys = [];
+            {% for key in openRooms.keys() %}
+                inUseKeys.push(key);
+            {% endfor %}
+            let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            for (let i = 0; i < 4; i++) {
+                result += characters.charAt(Math.floor(Math.random() * 4));
+            }
+            if (result in inUseKeys) {
+                return randomCode();
+            }
+            return result;
+        }
+    </script>
 {% endblock %}
+
+
+
