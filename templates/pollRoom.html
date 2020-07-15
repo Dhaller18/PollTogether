@@ -14,15 +14,17 @@
     </head>
     <script type="text/javascript">
         var socket = io.connect('http://' + document.domain + ':' + location.port);
-
+        var people = {};
         socket.on('connect', function () {
             console.log('Websocket connected!');
+            people['{{ user }}'] = socket.id;
             socket.emit('join', {id: '{{room.name}}'});
         })
 
         socket.on('newPoll', function (poll) {
             makePoll(poll);
         })
+
     </script>
     <body id="pollHolder">
     <section>
@@ -71,12 +73,13 @@
     </script>
     <section id="pollBox">
         <h1>Current Polls:</h1>
-        <p>No polls yet...</p>
+        <p id="noPollHolder">No polls yet...</p>
     </section>
     <script type="text/javascript">
         function makePoll(poll) {
             {% if poll is not none %}
-                $('h1').content = '';
+                $('h1').innerHTML = '';
+                $('#noPollHolder').content = '';
                 $("#pollBox").append(makeForm(poll));
             {% endif %}
         }
@@ -85,7 +88,7 @@
             // Create a form
             var form = document.createElement("form");
             form.setAttribute("method", "post");
-
+            form.id = poll.id;
             let pollOps = [poll.choice1, poll.choice2, poll.choice3, poll.choice4];
             let choices = ['A', 'B', 'C', 'D'];
             // Create question
@@ -98,6 +101,7 @@
                     var responseOp = document.createElement("input");
                     responseOp.id = choices[op];
                     responseOp.value = choices[op];
+                    responseOp.onclick=submitAns(poll, choices[op]);
                     responseLabel.setAttribute("for", responseOp.id);
                     responseOp.type = "submit";
                     form.append(responseOp);
@@ -105,7 +109,15 @@
                     form.append(document.createElement("br"));
 
                 }
+
             return form;
+        }
+
+        function submitAns(poll, submission) {
+            socket.emit('pollResponse', {
+                poll_id : poll.id,
+                response : submission
+            })
         }
     </script>
     </body>
