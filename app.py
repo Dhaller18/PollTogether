@@ -59,7 +59,7 @@ def results(room_id, poll_id):
         return render_template("resultsPage.html", data=data,
                                poll_q=poll.question)
     else:
-        redirect(url_for("poll_room", room_id=room_id))
+        return redirect(url_for("poll_room", room_id=room_id))
 
 
 def formatPoll(poll):
