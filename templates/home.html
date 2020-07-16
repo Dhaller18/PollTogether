@@ -8,21 +8,26 @@
     <form method="POST">
         <p>Would you like to:</p>
 
-        <p> <button onclick="createRoom()" >Create New Room</button></p>
-        <p> <input type="submit" value="Join Existing Room" formaction="/joinRoom/"> </p>
+        <p>
+            <button onclick="createRoom()">Create New Room</button>
+        </p>
+        <p><input type="submit" value="Join Existing Room" formaction="/joinRoom/"></p>
     </form>
-    <script src="//code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+    <script src="//code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+            crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
+            integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <script type="text/javascript">
         var socket = io.connect('http://' + document.domain + ':' + location.port);
 
         socket.on('connect', function () {
             console.log('Websocket connected!');
         })
-        socket.on('redirect', function(destination) {
+        socket.on('redirect', function (destination) {
             window.location.href = destination['url'];
         });
-        function createRoom(){
+
+        function createRoom() {
             console.log('Creating room...');
             let rID = randomCode();
             socket.emit('create', {'room_id': rID})
@@ -36,7 +41,7 @@
             {% endfor %}
             let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             for (let i = 0; i < 4; i++) {
-                result += characters.charAt(Math.floor(Math.random()*characters.length));
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
             }
             if (result in inUseKeys) {
                 return randomCode();

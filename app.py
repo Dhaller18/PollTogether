@@ -1,11 +1,8 @@
 import uuid
 
 from flask import Flask, redirect, url_for, render_template, request, session
-from flask_socketio import SocketIO, disconnect, emit, join_room
+from flask_socketio import SocketIO, emit, join_room
 from flask_sqlalchemy import SQLAlchemy
-import webbrowser
-
-browser_path = "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s"
 
 app = Flask(__name__)
 app.secret_key = "aklsdfjlksdahfkVdHDKHlkdsjfSDkfj323KDSFhk"
@@ -97,7 +94,8 @@ def results(room_id, poll_id):
     poll = Poll.query.filter_by(id=poll_id).first()
     if poll.room == room_id:
         data = formatPoll(poll)
-        return render_template("resultsPage.html", data=data)
+        return render_template("resultsPage.html", data=data,
+                               poll_q=poll.question)
     else:
         redirect(url_for("poll_room", room_id=room_id))
 
@@ -107,7 +105,6 @@ def formatPoll(poll):
             'B': poll.response2,
             'C': poll.response3,
             'D': poll.response4}
-    print(data)
     return data
 
 
@@ -135,11 +132,9 @@ def on_new_poll(data):
                  'choice2': new_poll.choice2,
                  'choice3': new_poll.choice3,
                  'choice4': new_poll.choice4}
-    socketio.emit('newPoll', poll_data, room=new_poll.room)
-    socketio.emit('resultsTab', new_poll.id, room=request.)
-    print(new_poll.id)
-    return webbrowser.get(browser_path).open_new_tab(url_for("results", room_id=new_poll.room,
-                                                             poll_id=new_poll.id))
+    emit('redirect', {'url': url_for("results", room_id=new_poll.room,
+                                     poll_id=new_poll.id)})
+    emit('newPoll', poll_data, room=new_poll.room)
 
 
 @socketio.on('create')
@@ -170,7 +165,6 @@ def on_response(data):
         poll.response3 = Poll.response3 + 1
     elif choice == 'D':
         poll.response4 = Poll.response4 + 1
-    print(poll)
     db.session.commit()
 
 

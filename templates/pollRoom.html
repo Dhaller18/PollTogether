@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}PollRoom - {{ room.roomID }}{% endblock %}
+{% block title %}PollRoom - {{ room.name }} {% endblock %}
 {% block content %}
     <head>
         Welcome to Room: {{ room.name }}
@@ -55,20 +55,24 @@
                 $("#createPoll").toggle();
             });
         });
-        $('#makeForm').on('submit', function() {
-           let q = $('#Q').val();
-           let a = $('#A').val();
-           let b = $('#B').val();
-           let c = $('#C').val();
-           let d = $('#D').val();
-           socket.emit('makepoll', {
-               r_id : '{{ room.name }}',
-               Q : q,
-               A : a,
-               B : b,
-               C : c,
-               D : d
-           });
+        $('#makeForm').on('submit', function () {
+            let q = $('#Q').val();
+            let a = $('#A').val();
+            let b = $('#B').val();
+            let c = $('#C').val();
+            let d = $('#D').val();
+            socket.emit('makepoll', {
+                r_id: '{{ room.name }}',
+                Q: q,
+                A: a,
+                B: b,
+                C: c,
+                D: d
+            });
+            window.open(window.location.href);
+        });
+        socket.on('redirect', function (destination) {
+            window.location.href = destination['url'];
         });
     </script>
     <section id="pollBox">
@@ -95,29 +99,36 @@
             var question = document.createElement("p")
             question.innerText = poll.question;
             form.appendChild(question);
-                for (op in pollOps) {
-                    var responseLabel = document.createElement("label");
-                    responseLabel.innerText = pollOps[op];
-                    var responseOp = document.createElement("input");
-                    responseOp.id = choices[op];
-                    responseOp.value = choices[op];
-                    responseOp.onclick=submitAns(poll, choices[op]);
-                    responseLabel.setAttribute("for", responseOp.id);
-                    responseOp.type = "submit";
-                    form.append(responseOp);
-                    form.append(responseLabel);
-                    form.append(document.createElement("br"));
+            for (op in pollOps) {
+                var responseLabel = document.createElement("label");
+                responseLabel.innerText = pollOps[op];
+                var responseOp = document.createElement("input");
+                responseOp.id = choices[op];
+                responseOp.value = choices[op];
+                responseOp.onclick = function () {
+                    submitAns(poll, this.id);
+                };
+                responseLabel.setAttribute("for", responseOp.id);
+                responseOp.type = "submit";
+                form.append(responseOp);
+                form.append(responseLabel);
+                form.append(document.createElement("br"));
 
-                }
+            }
 
             return form;
         }
 
         function submitAns(poll, submission) {
             socket.emit('pollResponse', {
-                poll_id : poll.id,
-                response : submission
+                poll_id: poll.id,
+                response: submission
             })
+            openResults(poll.id);
+        }
+
+        function openResults(page) {
+            window.open(window.location.href + '/results/' + page);
         }
     </script>
     </body>
