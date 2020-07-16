@@ -34,9 +34,8 @@ class Poll(db.Model):
 
 @app.route('/', methods=["POST", "GET"])
 def home():
-    session["user"] = "I am a user"
+    session["user"] = "User001"
     poll_user = session["user"]
-    # session["data"] = {'A': 1, 'B': 1, 'C': 1, 'D': 1}
     return render_template("home.html", user=poll_user,
                            openRooms=Room.query.all())
 
@@ -49,44 +48,6 @@ def join_existing():
             return redirect(url_for("poll_room", room_id=room))
 
     return render_template("joinRoom.html")
-
-
-@app.route('/user')
-def user():
-    poll_user = session["user"]
-    return f"hello {poll_user}"
-
-
-@app.route("/question/", methods=["POST", "GET"])
-def question():
-    if request.method == "POST":
-        session['recentAns'] = request.form['ans']
-
-        ans = session['recentAns']
-        add_answers(ans)
-
-        return redirect(url_for("results"))
-
-    else:
-        return render_template("submitAnswers.html")
-
-
-"""
-Creates a dictionary, data, in session if it does not already exist. 
-Checks for the key in the dictionary that matches the param ans and increments its value. 
-"""
-
-
-def add_answers(ans):
-    if "data" not in session:
-        session["data"] = {'A': 0, 'B': 0, 'C': 0, 'D': 0}
-
-    mydict = session["data"]
-
-    for entry in mydict:
-        if ans == entry:
-            mydict[entry] += 1
-    return mydict
 
 
 @app.route("/room/<room_id>/results/<poll_id>")
