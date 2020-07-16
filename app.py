@@ -5,7 +5,6 @@ from flask_socketio import SocketIO, emit, join_room
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-# noinspection SpellCheckingInspection
 app.secret_key = "aklsdfjlksdahfkVdHDKHlkdsjfSDkfj323KDSFhk"
 socketio = SocketIO(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pollTogether.db'
@@ -27,10 +26,10 @@ class Poll(db.Model):
     choice2 = db.Column(db.String(100))
     choice3 = db.Column(db.String(100))
     choice4 = db.Column(db.String(100))
-    response1 = db.Column(db.Integer)
-    response2 = db.Column(db.Integer)
-    response3 = db.Column(db.Integer)
-    response4 = db.Column(db.Integer)
+    response1 = db.Column(db.Integer, nullable=False)
+    response2 = db.Column(db.Integer, nullable=False)
+    response3 = db.Column(db.Integer, nullable=False)
+    response4 = db.Column(db.Integer, nullable=False)
 
 
 @app.route('/', methods=["POST", "GET"])
@@ -79,13 +78,23 @@ def add_answers(ans):
     return mydict
 
 
-@app.route("/results/")
-def results():
-    if "data" in session:
-        data = session["data"]
-        return render_template("resultsPage.html", data=data)
+@app.route("/room/<room_id>/results/<poll_id>")
+def results(room_id, poll_id):
+    poll = Poll.query.filter_by(id=poll_id).first()
+    if poll.room == room_id:
+        data = formatPoll(poll)
+        return render_template("resultsPage.html", data=data,
+                               poll_q=poll.question)
     else:
-        return redirect(url_for("question"))
+        redirect(url_for("poll_room", room_id=room_id))
+
+
+def formatPoll(poll):
+    data = {'A': poll.response1,
+            'B': poll.response2,
+            'C': poll.response3,
+            'D': poll.response4}
+    return data
 
 
 @app.route("/room/<room_id>", methods=["POST", "GET"])
@@ -105,13 +114,16 @@ def on_new_poll(data):
                     response4=0)
     db.session.add(new_poll)
     db.session.commit()
-    poll_data = {'room': new_poll.room,
+    poll_data = {'id': new_poll.id,
+                 'room': new_poll.room,
                  'question': new_poll.question,
                  'choice1': new_poll.choice1,
                  'choice2': new_poll.choice2,
                  'choice3': new_poll.choice3,
                  'choice4': new_poll.choice4}
-    socketio.emit('newPoll', poll_data)
+    emit('redirect', {'url': url_for("results", room_id=new_poll.room,
+                                     poll_id=new_poll.id)})
+    emit('newPoll', poll_data, room=new_poll.room)
 
 
 @socketio.on('create')
@@ -130,5 +142,20 @@ def on_join(data):
     join_room(data['id'])
 
 
+@socketio.on('pollResponse')
+def on_response(data):
+    poll = Poll.query.filter_by(id=data['poll_id']).first()
+    choice = data['response']
+    if choice == 'A':
+        poll.response1 = Poll.response1 + 1
+    elif choice == 'B':
+        poll.response2 = Poll.response2 + 1
+    elif choice == 'C':
+        poll.response3 = Poll.response3 + 1
+    elif choice == 'D':
+        poll.response4 = Poll.response4 + 1
+    db.session.commit()
+
+
 if __name__ == '__main__':
-    socketio.run(app)
+    socketio.run(app, debug=True)
