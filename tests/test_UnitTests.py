@@ -1,7 +1,6 @@
 import unittest
 import app as site
 from app import app, socketio
-from flask_socketio import SocketIO, emit, join_room
 
 pollroom = 'kdrl'
 
@@ -62,7 +61,7 @@ class TestCreatePoll(unittest.TestCase):
         self.client = socketio.test_client(app, flask_test_client=self.app)
 
     def tearDown(self):
-        client = socketio.test_client(app, flask_test_client=self.app)
+        self.client = socketio.test_client(app, flask_test_client=self.app)
         pass
 
     def test_formatPoll(self):
@@ -72,7 +71,7 @@ class TestCreatePoll(unittest.TestCase):
                              choice3='testC', choice4='testD',
                              response1=0, response2=0, response3=0,
                              response4=0)
-        new_poll = site.formatPoll(new_poll)
+        new_poll = site.format_poll(new_poll)
         self.assertEqual(expected_poll, new_poll, "Poll was not formatted as expected")
 
     def test_createQuestion(self):
@@ -104,7 +103,7 @@ class TestRooms(unittest.TestCase):
         self.client = socketio.test_client(app, flask_test_client=self.app)
 
     def tearDown(self):
-        client = socketio.test_client(app, flask_test_client=self.app)
+        self.client = socketio.test_client(app, flask_test_client=self.app)
         pass
 
     # expects there to be a room with the ID kdrl

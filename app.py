@@ -55,14 +55,14 @@ def join_existing():
 def results(room_id, poll_id):
     poll = Poll.query.filter_by(id=poll_id).first()
     if poll.room == room_id:
-        data = formatPoll(poll)
+        data = format_poll(poll)
         return render_template("resultsPage.html", data=data,
                                poll_q=poll.question)
     else:
         return redirect(url_for("poll_room", room_id=room_id))
 
 
-def formatPoll(poll):
+def format_poll(poll):
     data = {'A': poll.response1,
             'B': poll.response2,
             'C': poll.response3,
