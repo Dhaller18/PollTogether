@@ -14,16 +14,15 @@
     </head>
     <script type="text/javascript">
         var socket = io.connect('http://' + document.domain + ':' + location.port);
-        var people = {};
         socket.on('connect', function () {
             console.log('Websocket connected!');
-            people['{{ user }}'] = socket.id;
-            socket.emit('join', {id: '{{room.name}}'});
+            socket.emit('join', {'id': '{{room.name}}'});
         })
 
         socket.on('newPoll', function (poll) {
             makePoll(poll);
         })
+
 
     </script>
     <body id="pollHolder">
@@ -55,6 +54,7 @@
                 $("#createPoll").toggle();
             });
         });
+
         $('#makeForm').on('submit', function () {
             let q = $('#Q').val();
             let a = $('#A').val();
@@ -71,7 +71,9 @@
             });
             window.open(window.location.href);
         });
+
         socket.on('redirect', function (destination) {
+            console.log("redirecting");
             window.location.href = destination['url'];
         });
     </script>
