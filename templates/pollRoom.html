@@ -3,9 +3,9 @@
 {% block title %}PollRoom - {{ room.name }} {% endblock %}
 {% block content %}
     <head>
-        Welcome to Room: {{ room.name }}
-        Room Owner is: {{ room.owner }}
-        You are: {{ user }}
+        Welcome to Room: {{ room.name }} <br>
+        Room Owner is: {{ room.owner }} <br>
+        You are: {{ user }} <br>
 
         <script src="//code.jquery.com/jquery-1.12.4.min.js"
                 integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
@@ -16,6 +16,7 @@
         var socket = io.connect('http://' + document.domain + ':' + location.port);
         socket.on('connect', function () {
             console.log('Websocket connected!');
+            addPolls();
             socket.emit('join', {'id': '{{room.name}}'});
         })
 
@@ -84,15 +85,17 @@
     <script type="text/javascript">
         function makePoll(poll) {
             {% if poll is not none %}
-                $('h1').innerHTML = '';
-                $('#noPollHolder').content = '';
+                console.log('adding poll')
+                $('#noPollHolder').hide();
                 $("#pollBox").append(makeForm(poll));
             {% endif %}
         }
 
         function makeForm(poll) {
             // Create a form
-            var form = document.createElement("form");
+            let pollSection = document.createElement("section");
+            pollSection.id = poll.id + 'section';
+            let form = document.createElement("form");
             form.setAttribute("method", "post");
             form.id = poll.id;
             let pollOps = [poll.choice1, poll.choice2, poll.choice3, poll.choice4];
@@ -102,6 +105,7 @@
             question.innerText = poll.question;
             form.appendChild(question);
             for (op in pollOps) {
+                console.log(op)
                 var responseLabel = document.createElement("label");
                 responseLabel.innerText = pollOps[op];
                 var responseOp = document.createElement("input");
@@ -117,8 +121,19 @@
                 form.append(document.createElement("br"));
 
             }
+            pollSection.append(form);
+            return pollSection;
+        }
 
-            return form;
+        function addPolls() {
+            var polls = {{ polls|tojson|safe }};
+            let answered = {{ answered_polls|tojson|safe }};
+            console.log(answered);
+            polls.forEach(function(poll) {
+                if (poll.active && !(answered.includes(poll.id))) {
+                    makePoll(poll);
+                }
+            });
         }
 
         function submitAns(poll, submission) {
