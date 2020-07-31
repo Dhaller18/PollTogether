@@ -11,6 +11,7 @@
                 integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
                 integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     </head>
     <script type="text/javascript">
         var socket = io.connect('http://' + document.domain + ':' + location.port);
@@ -86,7 +87,7 @@
         function makePoll(poll) {
             {% if poll is not none %}
                 console.log('adding poll')
-                $('#noPollHolder').hide();
+                $('#noPollHolder').visibility = false;
                 $("#pollBox").append(makeForm(poll));
             {% endif %}
         }
@@ -95,6 +96,17 @@
             // Create a form
             let pollSection = document.createElement("section");
             pollSection.id = poll.id + 'section';
+            if (poll.response_type == 'mc') {
+                pollSection.append(createMCPoll(poll));
+            } else if (poll.response_type == 'ma') {
+                pollSection.append(createMAPoll(poll));
+            } else {
+                pollSection.append(createTFPoll(poll));
+            }
+            return pollSection;
+        }
+
+        function createMCPoll(poll) {
             let form = document.createElement("form");
             form.setAttribute("method", "post");
             form.id = poll.id;
@@ -105,7 +117,6 @@
             question.innerText = poll.question;
             form.appendChild(question);
             for (op in pollOps) {
-                console.log(op)
                 var responseLabel = document.createElement("label");
                 responseLabel.innerText = pollOps[op];
                 var responseOp = document.createElement("input");
@@ -119,21 +130,107 @@
                 form.append(responseOp);
                 form.append(responseLabel);
                 form.append(document.createElement("br"));
-
             }
-            pollSection.append(form);
-            return pollSection;
+            return form;
+        }
+
+        function createMAPoll(poll) {
+            let form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.id = poll.id;
+            let pollOps = [poll.choice1, poll.choice2, poll.choice3, poll.choice4];
+            let choices = ['A', 'B', 'C', 'D'];
+            // Create question
+            var question = document.createElement("p")
+            question.innerText = poll.question;
+            form.appendChild(question);
+            for (op in pollOps) {
+                var responseLabel = document.createElement("label");
+                responseLabel.innerText = pollOps[op];
+                var responseOp = document.createElement("input");
+                responseOp.type="checkbox";
+                responseOp.id = choices[op];
+                responseOp.value = choices[op];
+                responseLabel.setAttribute("for", responseOp.id);
+                form.append(responseOp);
+                form.append(responseLabel);
+                form.append(document.createElement("br"));
+            }
+            let submitButton = document.createElement("input");
+            submitButton.type="submit";
+            submitButton.id= poll.id + "submit";
+            submitButton.value="Submit";
+            submitButton.onclick = function () {
+                let answers = document.getElementById(poll.id).elements;
+                let choices = [];
+                for (i = 0; i < answers.length; i++) {
+                    if (answers[i].type === "checkbox" && answers[i].checked) {
+                        choices.push(answers[i].id);
+                    }
+                }
+                submitAns(poll, choices);
+            };
+            form.append(submitButton);
+            form.append(document.createElement("br"));
+            return form;
+        }
+
+        function createTFPoll(poll) {
+            return null;
         }
 
         function addPolls() {
             var polls = {{ polls|tojson|safe }};
             let answered = {{ answered_polls|tojson|safe }};
-            console.log(answered);
             polls.forEach(function(poll) {
                 if (poll.active && !(answered.includes(poll.id))) {
                     makePoll(poll);
+                } else if (!poll.active || answered.includes(poll.id)){
+                    if (poll.show_results){
+                        displayResults(poll);
+                    }
                 }
             });
+        }
+
+
+        function displayResults(poll) {
+            if (document.getElementById(poll.id + 'section')) {
+                let holder = document.getElementById(poll.id + 'section');
+                holder.innerHTML = '';
+            } else {
+                let pollSection = document.createElement("section");
+                pollSection.id = poll.id + 'section';
+                let question = document.createElement("p");
+                question.innerText = poll.question + " Results:";
+                document.getElementById('pollBox').append(pollSection);
+            }
+            google.charts.load("current", {packages: ["corechart"]});
+            google.charts.setOnLoadCallback(function() {
+                drawChart(poll);
+            });
+        }
+
+        function drawChart(poll) {
+            let resultsDict = [
+                [poll.choice1, poll.response1],
+                [poll.choice2, poll.response2],
+                [poll.choice3, poll.response3],
+                [poll.choice4, poll.response4]
+            ]
+
+            let chartData = google.visualization.arrayToDataTable(resultsDict, true);
+
+            let options = {
+                title: poll.question,
+                is3D: true,
+            };
+            let sectionID = poll.id + 'section';
+            let chart = new google.visualization.PieChart(document.getElementById(sectionID));
+            if (poll.poll_type === "Column") {
+                let chart = new google.visualization.ColumnChart(document.getElementById(sectionID));
+            }
+            chart.draw(chartData, options);
         }
 
         function submitAns(poll, submission) {
