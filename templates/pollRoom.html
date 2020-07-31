@@ -4,8 +4,8 @@
 {% block content %}
     <head>
         Welcome to Room: {{ room.name }}
-        Room Owner is: {{ room.owner }}
-        You are: {{ user }}
+        <p>Room Owner is: {{ room.owner }}
+            <br>You are: {{ user }}</p>
 
         <script src="//code.jquery.com/jquery-1.12.4.min.js"
                 integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
@@ -25,113 +25,115 @@
 
 
     </script>
-    <body id="pollHolder">
-    <section>
-        <button id="makePollButton">Create Poll</button>
-        <form method="post" name="NewPoll" id="makeForm" style="display:none">
-            <input type="hidden" name="Poll" value="new_poll">
-            <label for="Q">Poll Question:</label><br>
-            <input type="text" name="Q" id="Q"><br>
-            <label for="A">Option A:</label><br>
-            <input type="text" name="A" id="A"><br>
-            <label for="B">Option B:</label><br>
-            <input type="text" name="B" id="B"><br>
-            <label for="C">Option C:</label><br>
-            <input type="text" name="C" id="C"><br>
-            <label for="D">Option D:</label><br>
-            <input type="text" name="D" id="D"><br>
-            <input type="submit" value="Post Form">
-        </form>
-    </section>
-    <script type="text/javascript">
-        {% if room.owner != user %}
-            $("#makePollButton").toggle()
-        {% endif %}
-
-        $(document).ready(function () {
-            $("#makePollButton").click(function () {
-                $("#makeForm").toggle();
-                $("#createPoll").toggle();
-            });
-        });
-
-        $('#makeForm').on('submit', function () {
-            let q = $('#Q').val();
-            let a = $('#A').val();
-            let b = $('#B').val();
-            let c = $('#C').val();
-            let d = $('#D').val();
-            socket.emit('makepoll', {
-                r_id: '{{ room.name }}',
-                Q: q,
-                A: a,
-                B: b,
-                C: c,
-                D: d
-            });
-            window.open(window.location.href);
-        });
-
-        socket.on('redirect', function (destination) {
-            console.log("redirecting");
-            window.location.href = destination['url'];
-        });
-    </script>
-    <section id="pollBox">
-        <h1>Current Polls:</h1>
-        <p id="noPollHolder">No polls yet...</p>
-    </section>
-    <script type="text/javascript">
-        function makePoll(poll) {
-            {% if poll is not none %}
-                $('h1').innerHTML = '';
-                $('#noPollHolder').content = '';
-                $("#pollBox").append(makeForm(poll));
+    <div class="page">
+        <body id="pollHolder">
+        <section>
+            <button id="makePollButton">Create Poll</button>
+            <form method="post" name="NewPoll" id="makeForm" style="display:none">
+                <input type="hidden" name="Poll" value="new_poll">
+                <label for="Q">Poll Question:</label><br>
+                <input type="text" name="Q" id="Q"><br>
+                <label for="A">Option A:</label><br>
+                <input type="text" name="A" id="A"><br>
+                <label for="B">Option B:</label><br>
+                <input type="text" name="B" id="B"><br>
+                <label for="C">Option C:</label><br>
+                <input type="text" name="C" id="C"><br>
+                <label for="D">Option D:</label><br>
+                <input type="text" name="D" id="D"><br>
+                <input type="submit" value="Post Form">
+            </form>
+        </section>
+        <script type="text/javascript">
+            {% if room.owner != user %}
+                $("#makePollButton").toggle()
             {% endif %}
-        }
 
-        function makeForm(poll) {
-            // Create a form
-            var form = document.createElement("form");
-            form.setAttribute("method", "post");
-            form.id = poll.id;
-            let pollOps = [poll.choice1, poll.choice2, poll.choice3, poll.choice4];
-            let choices = ['A', 'B', 'C', 'D'];
-            // Create question
-            var question = document.createElement("p")
-            question.innerText = poll.question;
-            form.appendChild(question);
-            for (op in pollOps) {
-                var responseLabel = document.createElement("label");
-                responseLabel.innerText = pollOps[op];
-                var responseOp = document.createElement("input");
-                responseOp.id = choices[op];
-                responseOp.value = choices[op];
-                responseOp.onclick = function () {
-                    submitAns(poll, this.id);
-                };
-                responseLabel.setAttribute("for", responseOp.id);
-                responseOp.type = "submit";
-                form.append(responseOp);
-                form.append(responseLabel);
-                form.append(document.createElement("br"));
+            $(document).ready(function () {
+                $("#makePollButton").click(function () {
+                    $("#makeForm").toggle();
+                    $("#createPoll").toggle();
+                });
+            });
 
+            $('#makeForm').on('submit', function () {
+                let q = $('#Q').val();
+                let a = $('#A').val();
+                let b = $('#B').val();
+                let c = $('#C').val();
+                let d = $('#D').val();
+                socket.emit('makepoll', {
+                    r_id: '{{ room.name }}',
+                    Q: q,
+                    A: a,
+                    B: b,
+                    C: c,
+                    D: d
+                });
+                window.open(window.location.href);
+            });
+
+            socket.on('redirect', function (destination) {
+                console.log("redirecting");
+                window.location.href = destination['url'];
+            });
+        </script>
+        <section id="pollBox">
+            <h1>Current Polls:</h1>
+            <p id="noPollHolder">No polls yet...</p>
+        </section>
+        <script type="text/javascript">
+            function makePoll(poll) {
+                {% if poll is not none %}
+                    $('h1').innerHTML = '';
+                    $('#noPollHolder').content = '';
+                    $("#pollBox").append(makeForm(poll));
+                {% endif %}
             }
 
-            return form;
-        }
+            function makeForm(poll) {
+                // Create a form
+                var form = document.createElement("form");
+                form.setAttribute("method", "post");
+                form.id = poll.id;
+                let pollOps = [poll.choice1, poll.choice2, poll.choice3, poll.choice4];
+                let choices = ['A', 'B', 'C', 'D'];
+                // Create question
+                var question = document.createElement("p")
+                question.innerText = poll.question;
+                form.appendChild(question);
+                for (op in pollOps) {
+                    var responseLabel = document.createElement("label");
+                    responseLabel.innerText = pollOps[op];
+                    var responseOp = document.createElement("input");
+                    responseOp.id = choices[op];
+                    responseOp.value = choices[op];
+                    responseOp.onclick = function () {
+                        submitAns(poll, this.id);
+                    };
+                    responseLabel.setAttribute("for", responseOp.id);
+                    responseOp.type = "submit";
+                    form.append(responseOp);
+                    form.append(responseLabel);
+                    form.append(document.createElement("br"));
 
-        function submitAns(poll, submission) {
-            socket.emit('pollResponse', {
-                poll_id: poll.id,
-                response: submission
-            })
-            openResults(poll.id);
-        }
+                }
 
-        function openResults(page) {
-            window.open(window.location.href + '/results/' + page);
-        }
-    </script>
-    </body>
+                return form;
+            }
+
+            function submitAns(poll, submission) {
+                socket.emit('pollResponse', {
+                    poll_id: poll.id,
+                    response: submission
+                })
+                openResults(poll.id);
+            }
+
+            function openResults(page) {
+                window.open(window.location.href + '/results/' + page);
+            }
+        </script>
+        </body>
+    </div>
 {% endblock %}
