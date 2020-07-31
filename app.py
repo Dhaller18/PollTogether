@@ -88,8 +88,7 @@ def results(room_id, poll_id):
     poll = Poll.query.filter_by(id=poll_id).first()
     if poll.room == room_id:
         data = formatPoll(poll)
-        return render_template("resultsPage.html", data=data,
-                               poll_q=poll.question)
+        return render_template("resultsPage.html", data=data, poll_q=poll.question)
     else:
         redirect(url_for("poll_room", room_id=room_id))
 
