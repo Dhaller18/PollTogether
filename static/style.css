@@ -1,0 +1,23 @@
+header{
+    font-weight: bold;
+}
+
+body {
+    color: #ebebeb;
+    background-color: slategray;
+    font-family: Arial, serif;
+}
+
+body div.page{
+    background-color: #7e969a;
+    color: white;
+    align-content: center;
+    margin-top: 5%;
+    padding-top: 10px;
+    margin-left: 25%;
+    padding-left: 10px;
+    margin-right: 25%;
+    padding-right: 10px;
+    padding-bottom: 10px;
+
+}

@@ -2,6 +2,7 @@
 {% block title %}Home Page{% endblock %}
 
 {% block content %}
+    <div class="page">
     <p>Welcome to Polling together!</p>
     <p>To create a poll:</p>
     <ol>
@@ -27,6 +28,9 @@
         </p>
         <p><input type="submit" value="Join Existing Room" formaction="/joinRoom/"></p>
     </form>
+   </div>
+
+
     <script src="//code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
             crossorigin="anonymous"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
@@ -64,6 +68,5 @@
         }
     </script>
 {% endblock %}
-
 
 
