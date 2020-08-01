@@ -3,9 +3,11 @@
 {% block title %}Join A Room {% endblock %}
 
 {% block content %}
-    <form method="POST">
-        <p>Room ID:</p>
-        <p><input type="text" id="roomName" name="roomName" id="roomName"/></p>
-        <p><input type="submit" value="Join Room"></p>
-    </form>
+    <div class="page">
+        <form method="POST">
+            <p>Room ID:</p>
+            <p><label for="roomName"></label><input type="text" id="roomName" name="roomName" id="roomName"/></p>
+            <p><button type="submit" value="Join Room">Join Room</button></p>
+        </form>
+    </div>
 {% endblock %}

@@ -4,132 +4,292 @@
 {% block content %}
     <head>
         Welcome to Room: {{ room.name }}
-        Room Owner is: {{ room.owner }}
-        You are: {{ user }}
+        <p>Room Owner is: {{ room.owner }}
+            <br>You are: {{ user }}</p>
 
         <script src="//code.jquery.com/jquery-1.12.4.min.js"
                 integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
                 integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <title></title>
     </head>
     <script type="text/javascript">
         var socket = io.connect('http://' + document.domain + ':' + location.port);
-        var people = {};
         socket.on('connect', function () {
             console.log('Websocket connected!');
-            people['{{ user }}'] = socket.id;
-            socket.emit('join', {id: '{{room.name}}'});
+            addPolls();
+            socket.emit('join', {'id': '{{room.name}}'});
         })
 
         socket.on('newPoll', function (poll) {
             makePoll(poll);
         })
 
+        socket.on('responseMade', function (poll) {
+            let answered_list = {{ answered_polls }};
+            if (answered_list.includes(poll.id) || '{{ user }}' === '{{ room.owner }}') {
+                let sectionID = poll.id + 'section'
+                if (document.getElementById(sectionID)) {
+                    let pollHolder = document.getElementById(poll.id + 'section');
+                    pollHolder.innerHTML = "";
+                    displayResults(poll);
+                }
+            }
+        })
+
+
     </script>
-    <body id="pollHolder">
-    <section>
+    <div class="page">
+
+        <body id="pollHolder">
         <button id="makePollButton">Create Poll</button>
-        <form method="post" name="NewPoll" id="makeForm" style="display:none">
-            <input type="hidden" name="Poll" value="new_poll">
-            <label for="Q">Poll Question:</label><br>
-            <input type="text" name="Q" id="Q"><br>
-            <label for="A">Option A:</label><br>
-            <input type="text" name="A" id="A"><br>
-            <label for="B">Option B:</label><br>
-            <input type="text" name="B" id="B"><br>
-            <label for="C">Option C:</label><br>
-            <input type="text" name="C" id="C"><br>
-            <label for="D">Option D:</label><br>
-            <input type="text" name="D" id="D"><br>
-            <input type="submit" value="Post Form">
-        </form>
-    </section>
-    <script type="text/javascript">
-        {% if room.owner != user %}
-            $("#makePollButton").toggle()
-        {% endif %}
+        <div class="make-poll-holder">
+            <form method="post" name="NewPoll" id="makeForm" style="display:none">
+                <div class="make-poll">
+                    <input type="hidden" name="Poll" value="new_poll">
+                    <label for="Q">Poll Question:</label><br>
+                    <input type="text" name="Q" id="Q"><br>
+                    <label for="A">Option A:</label><br>
+                    <input type="text" name="A" id="A"><br>
+                    <label for="B">Option B:</label><br>
+                    <input type="text" name="B" id="B"><br>
+                    <label for="C">Option C:</label><br>
+                    <input type="text" name="C" id="C"><br>
+                    <label for="D">Option D:</label><br>
+                    <input type="text" name="D" id="D"><br>
+                </div>
+                <div class="make-poll">
+                    <p>Response Type:</p>
+                    <input type="radio" id="mc" name="responseType" value="mc" checked>
+                    <label for="mc">Multiple Choice</label>
+                    <input type="radio" id="ma" name="responseType" value="ma">
+                    <label for="ma">Multiple Answer</label><br>
+                    <p>Display Results As:</p>
+                    <input type="radio" id="pie" name="pollType" value="Pie" checked>
+                    <label for="pie">Pie Chart</label>
+                    <input type="radio" id="column" name="pollType" value="Column">
+                    <label for="column">Bar Chart</label>
+                    <p>Show results to participants?</p>
+                    <input type="radio" id="show" name="showResults" value="true" checked>
+                    <label for="show">Show Results</label>
+                    <input type="radio" id="hide" name="showResults" value="false">
+                    <label for="hide">Hide Results</label>
+                </div>
+                <input type="submit" value="Post Form">
+            </form>
+        </div>
 
-        $(document).ready(function () {
-            $("#makePollButton").click(function () {
-                $("#makeForm").toggle();
-                $("#createPoll").toggle();
-            });
-        });
-        $('#makeForm').on('submit', function () {
-            let q = $('#Q').val();
-            let a = $('#A').val();
-            let b = $('#B').val();
-            let c = $('#C').val();
-            let d = $('#D').val();
-            socket.emit('makepoll', {
-                r_id: '{{ room.name }}',
-                Q: q,
-                A: a,
-                B: b,
-                C: c,
-                D: d
-            });
-            window.open(window.location.href);
-        });
-        socket.on('redirect', function (destination) {
-            window.location.href = destination['url'];
-        });
-    </script>
-    <section id="pollBox">
-        <h1>Current Polls:</h1>
-        <p id="noPollHolder">No polls yet...</p>
-    </section>
-    <script type="text/javascript">
-        function makePoll(poll) {
-            {% if poll is not none %}
-                $('h1').innerHTML = '';
-                $('#noPollHolder').content = '';
-                $("#pollBox").append(makeForm(poll));
+
+        <script type="text/javascript">
+            {% if room.owner != user %}
+                $("#makePollButton").toggle()
             {% endif %}
-        }
 
-        function makeForm(poll) {
-            // Create a form
-            var form = document.createElement("form");
-            form.setAttribute("method", "post");
-            form.id = poll.id;
-            let pollOps = [poll.choice1, poll.choice2, poll.choice3, poll.choice4];
-            let choices = ['A', 'B', 'C', 'D'];
-            // Create question
-            var question = document.createElement("p")
-            question.innerText = poll.question;
-            form.appendChild(question);
-            for (op in pollOps) {
-                var responseLabel = document.createElement("label");
-                responseLabel.innerText = pollOps[op];
-                var responseOp = document.createElement("input");
-                responseOp.id = choices[op];
-                responseOp.value = choices[op];
-                responseOp.onclick = function () {
-                    submitAns(poll, this.id);
-                };
-                responseLabel.setAttribute("for", responseOp.id);
-                responseOp.type = "submit";
-                form.append(responseOp);
-                form.append(responseLabel);
-                form.append(document.createElement("br"));
+            $(document).ready(function () {
+                $("#makePollButton").click(function () {
+                    $("#makeForm").toggle();
+                    $("#createPoll").toggle();
+                });
+            });
 
+            $('#makeForm').on('submit', function () {
+                let q = $('#Q').val();
+                let a = $('#A').val();
+                let b = $('#B').val();
+                let c = $('#C').val();
+                let d = $('#D').val();
+                let pType = $("input[name='pollType']:checked").val();
+                let rType = $("input[name='responseType']:checked").val();
+                let show = $("input[name='showResults']:checked").val();
+                socket.emit('makepoll', {
+                    r_id: '{{ room.name }}',
+                    Q: q,
+                    A: a,
+                    B: b,
+                    C: c,
+                    D: d,
+                    poll_type: pType,
+                    response_type: rType,
+                    show_results: show
+                });
+            });
+
+            socket.on('redirect', function (destination) {
+                console.log("redirecting");
+                window.location.href = destination['url'];
+            });
+        </script>
+        <section id="pollBox">
+            <h1>Current Polls:</h1>
+            <p id="noPollHolder"></p>
+        </section>
+        <script type="text/javascript">
+            function makePoll(poll) {
+                {% if poll is not none %}
+                    $('h1').innerHTML = "";
+                    $("#noPollHolder").content = "";
+                    $("#pollBox").append(makeForm(poll));
+                {% endif %}
             }
 
-            return form;
-        }
+            function makeForm(poll) {
+                // Create a form
+                let pollSection = document.createElement("section");
+                pollSection.id = poll.id + 'section';
+                if (poll.response_type === 'mc') {
+                    pollSection.append(createMCPoll(poll));
+                } else if (poll.response_type === 'ma') {
+                    pollSection.append(createMAPoll(poll));
+                } else {
+                    pollSection.append(createTFPoll(poll));
+                }
+                return pollSection;
+            }
 
-        function submitAns(poll, submission) {
-            socket.emit('pollResponse', {
-                poll_id: poll.id,
-                response: submission
-            })
-            openResults(poll.id);
-        }
+            function createMCPoll(poll) {
+                let form = document.createElement("form");
+                form.setAttribute("method", "post");
+                form.id = poll.id;
+                let pollOps = [poll.choice1, poll.choice2, poll.choice3, poll.choice4];
+                let choices = ['A', 'B', 'C', 'D'];
+                // Create question
+                var question = document.createElement("p")
+                question.innerText = poll.question;
+                form.appendChild(question);
+                for (op in pollOps) {
+                    var responseLabel = document.createElement("label");
+                    responseLabel.innerText = pollOps[op];
+                    var responseOp = document.createElement("input");
+                    responseOp.id = choices[op];
+                    responseOp.value = choices[op];
+                    responseOp.onclick = function () {
+                        submitAns(poll, this.id);
+                    };
+                    responseLabel.setAttribute("for", responseOp.id);
+                    responseOp.type = "submit";
+                    form.append(responseOp);
+                    form.append(responseLabel);
+                    form.append(document.createElement("br"));
+                }
+                return form;
+            }
 
-        function openResults(page) {
-            window.open(window.location.href + '/results/' + page);
-        }
-    </script>
-    </body>
+            function createMAPoll(poll) {
+                let form = document.createElement("form");
+                form.setAttribute("method", "post");
+                form.id = poll.id;
+                let pollOps = [poll.choice1, poll.choice2, poll.choice3, poll.choice4];
+                let choices = ['A', 'B', 'C', 'D'];
+                // Create question
+                var question = document.createElement("p")
+                question.innerText = poll.question;
+                form.appendChild(question);
+                for (op in pollOps) {
+                    var responseLabel = document.createElement("label");
+                    responseLabel.innerText = pollOps[op];
+                    var responseOp = document.createElement("input");
+                    responseOp.type = "checkbox";
+                    responseOp.id = choices[op];
+                    responseOp.value = choices[op];
+                    responseLabel.setAttribute("for", responseOp.id);
+                    form.append(responseOp);
+                    form.append(responseLabel);
+                    form.append(document.createElement("br"));
+                }
+                let submitButton = document.createElement("input");
+                submitButton.type = "submit";
+                submitButton.id = poll.id + "submit";
+                submitButton.value = "Submit";
+                submitButton.onclick = function () {
+                    let answers = document.getElementById(poll.id).elements;
+                    let choices = [];
+                    for (i = 0; i < answers.length; i++) {
+                        if (answers[i].type === "checkbox" && answers[i].checked) {
+                            choices.push(answers[i].id);
+                        }
+                    }
+                    submitAns(poll, choices);
+                };
+                form.append(submitButton);
+                form.append(document.createElement("br"));
+                return form;
+            }
+
+            function createTFPoll(poll) {
+                return null;
+            }
+
+            function addPolls() {
+                var polls = {{ polls|tojson|safe }};
+                let answered = {{ answered_polls|tojson|safe }};
+                polls.forEach(function (poll) {
+                    if ('{{room.owner}}' === '{{ user }}') {
+                        displayResults(poll);
+                    } else if (poll.active && !(answered.includes(poll.id))) {
+                        makePoll(poll);
+                    } else if (!poll.active || answered.includes(poll.id)) {
+                        if (poll.show_results) {
+                            displayResults(poll);
+                        }
+                    }
+                });
+            }
+
+
+            function displayResults(poll) {
+                if (document.getElementById(poll.id + 'section')) {
+                    let holder = document.getElementById(poll.id + 'section');
+                    holder.innerHTML = '';
+                } else {
+                    let pollSection = document.createElement("section");
+                    pollSection.id = poll.id + 'section';
+                    let question = document.createElement("p");
+                    question.innerText = poll.question + " Results:";
+                    document.getElementById('pollBox').append(pollSection);
+                }
+                google.charts.load("current", {packages: ["corechart"]});
+                google.charts.setOnLoadCallback(function () {
+                    drawChart(poll);
+                });
+            }
+
+            function drawChart(poll) {
+                let resultsDict = [
+                    [poll.choice1, poll.response1],
+                    [poll.choice2, poll.response2],
+                    [poll.choice3, poll.response3],
+                    [poll.choice4, poll.response4]
+                ]
+
+                let chartData = google.visualization.arrayToDataTable(resultsDict, true);
+
+                var options = {
+                backgroundColor: '#7e969a',
+                title: '',
+                is3D: true,
+                forcelFrame: true,
+                legend: {'position':'top'},
+                'width': 350,
+                'height': 400,
+                chartArea:{width: '100%', height: '80%'}
+            };
+
+                let sectionID = poll.id + 'section';
+                let chart = new google.visualization.PieChart(document.getElementById(sectionID));
+                if (poll.poll_type === "Column") {
+                    chart = new google.visualization.ColumnChart(document.getElementById(sectionID));
+                }
+                chart.draw(chartData, options);
+            }
+
+            function submitAns(poll, submission) {
+                socket.emit('pollResponse', {
+                    poll_id: poll.id,
+                    response: submission
+                })
+            }
+        </script>
+        </body>
+    </div>
 {% endblock %}
