@@ -58,6 +58,8 @@ body {
     width: 50%;
     align-content: center;
 
-    border: solid;
-    border-color: black;
+    padding-top: 5%;
+    padding-bottom: 5%;
+    /*border: solid;*/
+    /*border-color: black;*/
 }

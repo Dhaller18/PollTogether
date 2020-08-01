@@ -263,10 +263,17 @@
 
                 let chartData = google.visualization.arrayToDataTable(resultsDict, true);
 
-                let options = {
-                    title: poll.question,
-                    is3D: true,
-                };
+                var options = {
+                backgroundColor: '#7e969a',
+                title: '',
+                is3D: true,
+                forcelFrame: true,
+                legend: {'position':'top'},
+                'width': 350,
+                'height': 400,
+                chartArea:{width: '100%', height: '80%'}
+            };
+
                 let sectionID = poll.id + 'section';
                 let chart = new google.visualization.PieChart(document.getElementById(sectionID));
                 if (poll.poll_type === "Column") {
