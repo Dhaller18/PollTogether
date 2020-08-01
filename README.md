@@ -3,7 +3,7 @@
 PollTogether is a dynamic poll creation web application with a focus on supporting 'spur of the moment' poll creation. With support for two question types, results formats, and poll creator controls, you can create polls for your friends, students, colleagues, or anyone you choose to invite to your poll.
 
 
-#  <Creating a Poll
+#  Creating a Poll
 
 ## 1. Create a New Room
 
