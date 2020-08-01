@@ -9,22 +9,22 @@ PollTogether is a dynamic poll creation web application with a focus on supporti
 
 ## 1. Create a New Room
 
-<img src=./assets/createRoom.png>
+<img src=./assets/createRoom.png> </div>
 
 ## 2. Share the room ID
 
-<img src=./assets/roomID.png>
+<img src=./assets/roomID.png></div>
 
 ## 3. Create and Post a Poll
 - Response Type: How will the user be able to select answers?
 - Risplay Results: How will the results be formatted?
 - Show Results: Will the results of the poll be visible to the users?
 
-<img src=./assets/createPoll.png>
+<img src=./assets/createPoll.png></div>
 
 ## 4. Review the Results
 
-<img src=./assets/results.png>
+<img src=./assets/results.png></div>
 
 
 
@@ -32,12 +32,12 @@ PollTogether is a dynamic poll creation web application with a focus on supporti
 
 ## 1. Join an Existing Room
 
-<img src=./assets/joinRoom.png>
+<img src=./assets/joinRoom.png></div>
 
 ## 2. Enter the Room ID
 
-<img src=./assets/enterID.png>
+<img src=./assets/enterID.png></div>
 
 ## 3. Answer the Poll
-<img src=./assets/answerPoll.png>
+<img src=./assets/answerPoll.png></div>
 <i>Note: You must be in the room before the poll has been posted</i>
