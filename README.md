@@ -4,26 +4,26 @@ PollTogether is a dynamic poll creation web application with a focus on supporti
 
 ### Contents: <a href="#CreatePoll">Create a Poll</a>, <a href="#AnswerPoll">Answer a Poll</a>
 
-# <div id="CreatePoll">Creating a Poll</div>
+# < id="CreatePoll">Creating a Poll</>
 
 ## 1. Create a New Room
 
-<img src=./README_assests/createRoom.png>
+![Create A Room](./README_assests/createRoom.png)
 
 ## 2. Share the room ID
 
-<img src=./README_assests/roomID.png>
+![Share Room ID](./README_assests/roomID.png)
 
 ## 3. Create and Post a Poll
 - Response Type: How will the user be able to select answers?
 - Risplay Results: How will the results be formatted?
 - Show Results: Will the results of the poll be visible to the users?
 
-<img src=./README_assests/createPoll.png>
+![Create the Poll](./README_assests/createPoll.png)
 
 ## 4. Review the Results
 
-<img src=./README_assests/results.png>
+![View Results](./README_assests/results.png)
 
 
 
@@ -31,12 +31,13 @@ PollTogether is a dynamic poll creation web application with a focus on supporti
 
 ## 1. Join an Existing Room
 
-<img src=./README_assests/joinRoom.png>
+![Join a Room](./README_assests/joinRoom.png)
 
 ## 2. Enter the Room ID
 
-<img src=./README_assests/enterID.png>
+![Enter the Room ID](./README_assests/enterID.png)
 
 ## 3. Answer the Poll
-<img src=./README_assests/answerPoll.png>
+![Answer the poll](./README_assests/answerPoll.png)
+<br>
 <i>Note: You must be in the room before the poll has been posted</i>
