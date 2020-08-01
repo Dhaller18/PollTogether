@@ -14,10 +14,10 @@ body {
     align-content: center;
     margin-top: 5%;
     padding-top: 25px;
-    margin-left: 25%;
-    padding-left: 25px;
-    margin-right: 25%;
-    padding-right: 25px;
+    margin-left: 20%;
+    padding-left: 20px;
+    margin-right: 20%;
+    padding-right: 20px;
     padding-bottom: 25px;
 
     border: solid;
@@ -45,4 +45,19 @@ body {
     border: solid;
     border-color: white;
 
+}
+
+.make-poll-holder{
+    display:table-row;
+}
+
+.make-poll {
+    background-color: #7e969a;
+    color: #ebebeb;
+    display: table-cell;
+    width: 50%;
+    align-content: center;
+
+    border: solid;
+    border-color: black;
 }

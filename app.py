@@ -1,6 +1,6 @@
 import uuid
 
-from flask import Flask, redirect, url_for, render_template, request, session, jsonify
+from flask import Flask, redirect, url_for, render_template, request, session
 from flask_socketio import SocketIO, emit, join_room
 from flask_sqlalchemy import SQLAlchemy
 
@@ -121,7 +121,13 @@ def poll_room(room_id):
 
 @socketio.on('makepoll')
 def on_new_poll(data):
+    showResults = False
+    if data['show_results'] == "true":
+        showResults = True
     new_poll = Poll(room=data['r_id'], question=data['Q'],
+                    poll_type=data['poll_type'],
+                    response_type=data['response_type'],
+                    show_results=showResults,
                     choice1=data['A'], choice2=data['B'],
                     choice3=data['C'], choice4=data['D'],
                     response1=0, response2=0, response3=0,
@@ -130,8 +136,8 @@ def on_new_poll(data):
     db.session.commit()
     add_participated(new_poll.id)
     poll_data = new_poll.serialize()
-    emit('redirect', {'url': url_for("results", room_id=new_poll.room,
-                                     poll_id=new_poll.id)})
+    #emit('redirect', {'url': url_for("results", room_id=new_poll.room,
+                                     #poll_id=new_poll.id)})
     emit('newPoll', poll_data, room=new_poll.room)
 
 
@@ -156,6 +162,15 @@ def on_response(data):
     add_participated(data['poll_id'])
     poll = Poll.query.filter_by(id=data['poll_id']).first()
     choice = data['response']
+    if isinstance(choice, str):
+        add_single_response(poll, choice)
+    elif isinstance(choice, list):
+        add_multi_response(poll, choice)
+    new_data = Poll.query.filter_by(id=data['poll_id']).first()
+    emit('responseMade', new_data.serialize(), room=new_data.room)
+
+
+def add_single_response(poll, choice):
     if choice == 'A':
         poll.response1 = Poll.response1 + 1
     elif choice == 'B':
@@ -165,6 +180,11 @@ def on_response(data):
     elif choice == 'D':
         poll.response4 = Poll.response4 + 1
     db.session.commit()
+
+
+def add_multi_response(poll, choices):
+    for choice in choices:
+        add_single_response(poll, choice)
 
 
 def add_participated(poll_id):
