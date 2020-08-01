@@ -2,7 +2,6 @@ import unittest
 import app as site
 from app import app, socketio
 from ddt import ddt, data, unpack
-from flask_socketio import SocketIO, emit, join_room
 
 pollroom = 'Ymbq'
 
@@ -41,6 +40,7 @@ class RoutingTests(unittest.TestCase):
         response = self.app.get('/joinRoom/', content_type='html/text')
         self.assertTrue(b'Room ID:' in response.data)
 
+
 @ddt
 class TestPoll(unittest.TestCase):
 
@@ -56,7 +56,7 @@ class TestPoll(unittest.TestCase):
     def test_formatPoll(self):
         new_poll = site.Poll(response1=1, response2=2, response3=3, response4=0)
         expected_poll = {'A': 1, 'B': 2, 'C': 3, 'D': 0}
-        new_poll = site.formatPoll(new_poll)
+        new_poll = site.format_poll(new_poll)
         self.assertEqual(expected_poll, new_poll, "Poll was not formatted as expected")
 
     @unpack
@@ -107,7 +107,7 @@ class TestRooms(unittest.TestCase):
     # expects there to be a room with the ID Ymbq
     def test_roomJoined(self):
         with app.test_request_context('/joinRoom'):
-            response = self.app.post( '/joinRoom/', data={'roomName': 'Ymbq'}, follow_redirects=True)
+            response = self.app.post('/joinRoom/', data={'roomName': 'Ymbq'}, follow_redirects=True)
         self.assertTrue(b'Welcome to Room: Ymbq' in response.data)
 
 

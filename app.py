@@ -37,22 +37,23 @@ class Poll(db.Model):
 
     def serialize(self):
         return {
-            'id' : self.id,
-            'room' : self.room,
-            'active' : self.active,
-            'poll_type' : self.poll_type,
-            'response_type' : self.response_type,
-            'show_results' : self.show_results,
-            'question' : self.question,
-            'choice1' : self.choice1,
-            'choice2' : self.choice2,
-            'choice3' : self.choice3,
-            'choice4' : self.choice4,
-            'response1' : self.response1,
-            'response2' : self.response2,
-            'response3' : self.response3,
-            'response4' : self.response4
+            'id': self.id,
+            'room': self.room,
+            'active': self.active,
+            'poll_type': self.poll_type,
+            'response_type': self.response_type,
+            'show_results': self.show_results,
+            'question': self.question,
+            'choice1': self.choice1,
+            'choice2': self.choice2,
+            'choice3': self.choice3,
+            'choice4': self.choice4,
+            'response1': self.response1,
+            'response2': self.response2,
+            'response3': self.response3,
+            'response4': self.response4
         }
+
 
 class Participated(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -83,7 +84,7 @@ def join_existing():
     return render_template("joinRoom.html")
 
 
-def formatPoll(poll):
+def format_poll(poll):
     data = {'A': poll.response1, 'B': poll.response2, 'C': poll.response3, 'D': poll.response4}
     return data
 
@@ -110,6 +111,7 @@ def poll_room(room_id):
 def on_new_poll(data):
     showResults = False
     if data['show_results'] == "true":
+        # noinspection PyPep8Naming
         showResults = True
     new_poll = Poll(room=data['r_id'], question=data['Q'],
                     poll_type=data['poll_type'],
@@ -123,8 +125,8 @@ def on_new_poll(data):
     db.session.commit()
     add_participated(new_poll.id)
     poll_data = new_poll.serialize()
-    #emit('redirect', {'url': url_for("results", room_id=new_poll.room,
-                                     #poll_id=new_poll.id)})
+    # emit('redirect', {'url': url_for("results", room_id=new_poll.room,
+    # poll_id=new_poll.id)})
     emit('newPoll', poll_data, room=new_poll.room)
 
 
