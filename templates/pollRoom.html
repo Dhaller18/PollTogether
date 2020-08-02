@@ -154,7 +154,7 @@
                 let pollOps = [poll.choice1, poll.choice2, poll.choice3, poll.choice4];
                 let choices = ['A', 'B', 'C', 'D'];
                 // Create question
-                var question = document.createElement("p")
+                let question = document.createElement("p")
                 question.innerText = poll.question;
                 form.appendChild(question);
                 for (op in pollOps) {
@@ -266,7 +266,7 @@
 
                 var options = {
                 backgroundColor: '#7e969a',
-                title: '',
+                title: poll.question,
                 is3D: true,
                 forcelFrame: true,
                 legend: {'position':'top'},
